@@ -28,7 +28,7 @@ A directive never fixes a writing or typesetting problem. A wall of text stays a
 4. **Typesetting pass**: apply «Typesetting Rules»
 5. **Directive pass**: pick directives from the "Type × Style" decision matrix, then look up their exact syntax with `pnpm directives:ref <name>...` (see "Directive Reference")
 6. **Review pass**: check the kami anti-patterns and the Hard Constraints, fix what fails
-7. **Write the file**: `enhance` → `<original-filename>.enhanced.md`; `write` → the path the user named, otherwise `src/content/blog/<slug>.md`
+7. **Write the file**: `enhance` → `<original-filename>.enhanced.md`; `write` → the path the user named, otherwise create the post with `vg new post "<title>" --draft` (see "Site Commands: vg")
 8. **Check**: run `pnpm directives:check <file>` and fix every error (see "Check Before Finishing")
 
 ## kami as the Reference
@@ -263,6 +263,23 @@ Strictly enforce these rules:
 7. **Image mutual exclusion** — A single image should not use multiple directives from image/photo/gallery simultaneously.
 8. **Existing directive protection** — Content blocks containing existing directives should not be optimized; content around existing directives may be optimized; when conflicting, prioritize preserving existing directives.
 9. **Nothing invented** — In either mode, no fabricated numbers, versions, dates, quotes, links or image URLs. Mark a gap as `[TODO: what is missing]` in the text and list it in the report.
+
+## Site Commands: vg
+
+When `vg` (the Vergil CLI) is installed — `vg --version` works — use it to create content and to look things up instead of writing frontmatter by hand or walking `src/content/`. It picks the folder, filename and frontmatter fields the theme version expects.
+
+```bash
+vg new post "标题" --draft --tags "a,b"        # add --series "<name>" to join a series
+vg new doc "标题" --draft --path <book>/<chapter>
+vg list post -d --json                          # draft posts with their paths
+vg series --json                                # series names and folders
+vg docs <book> --json                           # a book's chapter tree, to choose --path
+```
+
+- `vg new` prints the created path (`✓ post created: src/content/blog/<slug>.md`). Open that file, replace the placeholder body, and add the remaining fields from "Output Format" (`excerpt`, the `# vergil-writing:` comment).
+- Failures go to stderr with exit code 1 and a hint. Fix the command from the hint; don't fall back to writing the file by hand.
+- Run `vg publish <slug>` only when the author asks to publish. A draft stays a draft until they've reviewed it.
+- If `vg` isn't installed, write the file by hand as described in "Output Format".
 
 ## Output Format
 
