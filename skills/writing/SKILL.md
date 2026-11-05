@@ -1,6 +1,6 @@
 ---
-name: vergil-writing-skills
-description: Write, typeset and enhance Markdown articles for the Vergil Astro theme. Uses kami (github.com/tw93/kami) as the writing and typesetting reference and Vergil's 51 content directives for visual structure. Use when: (1) a user wants a blog post or doc for a Vergil site drafted, rewritten, polished or typeset (写文章 / 润色 / 排版), (2) a user provides a Markdown file and wants it enriched with callouts, panels, tabs, timelines, photos, galleries, diagrams, or other Vergil directives, (3) a user wants a plain Markdown article to read better without changing what it says, (4) working with Markdown under a Vergil site's src/content/. NOT for: non-Vergil theme projects, or PDF, slides and other print documents (use kami itself for those).
+name: writing
+description: Write, typeset and enhance Markdown articles for the Vergil Astro theme. Uses kami (github.com/tw93/kami) as the writing and typesetting reference and Vergil's content directives for visual structure; the directive reference and checker come from the site itself (pnpm directives:ref / directives:check). Use when: (1) a user wants a blog post or doc for a Vergil site drafted, rewritten, polished or typeset (写文章 / 润色 / 排版), (2) a user provides a Markdown file and wants it enriched with callouts, panels, tabs, timelines, photos, galleries, diagrams, or other Vergil directives, (3) a user wants a plain Markdown article to read better without changing what it says, (4) working with Markdown under a Vergil site's src/content/. NOT for: non-Vergil theme projects, or PDF, slides and other print documents (use kami itself for those).
 ---
 
 # Vergil Writing & Typesetting Expert
@@ -9,7 +9,7 @@ You help authors publish Markdown articles on the Vergil Astro theme. Work in th
 
 1. **Writing**: what the article says. Reference: kami's writing rules.
 2. **Typesetting**: how the Markdown is structured: headings, paragraphs, lists, tables, emphasis, CJK punctuation and spacing. Reference: kami's typesetting judgment, adapted to web articles.
-3. **Directives**: Vergil's 51 content directives, added only where they carry meaning.
+3. **Directives**: Vergil's content directives, added only where they carry meaning. Their syntax comes from the site (see "Directive Reference").
 
 A directive never fixes a writing or typesetting problem. A wall of text stays a wall of text inside a callout.
 
@@ -26,9 +26,10 @@ A directive never fixes a writing or typesetting problem. A wall of text stays a
 2. **Pick the mode**, then the article type ("Type System") and style ("Style System")
 3. **Writing pass** (`write` mode only): apply «Writing Rules»
 4. **Typesetting pass**: apply «Typesetting Rules»
-5. **Directive pass**: add directives from the "Type × Style" decision matrix
+5. **Directive pass**: pick directives from the "Type × Style" decision matrix, then look up their exact syntax with `pnpm directives:ref <name>...` (see "Directive Reference")
 6. **Review pass**: check the kami anti-patterns and the Hard Constraints, fix what fails
 7. **Write the file**: `enhance` → `<original-filename>.enhanced.md`; `write` → the path the user named, otherwise `src/content/blog/<slug>.md`
+8. **Check**: run `pnpm directives:check <file>` and fix every error (see "Check Before Finishing")
 
 ## kami as the Reference
 
@@ -125,7 +126,7 @@ Infer style from existing directive density, writing style, and target audience.
 
 First apply kami's subtractive rule: a directive earns its place only when it carries meaning: a warning, a state, a grouping, a comparison, or a relationship. If removing it would lose nothing, don't add it. Never add a directive for visual rhythm, and never to break up a long paragraph (split the paragraph instead).
 
-For each content pattern below, choose the directive based on type and style. **The richer the style, the looser the trigger conditions** (more content is identified as "suitable for directives"). Cells like `callout{type=warn}` are shorthand for the full syntax in the reference below.
+For each content pattern below, choose the directive based on type and style. **The richer the style, the looser the trigger conditions** (more content is identified as "suitable for directives"). Cells like `callout{type=warn}` are shorthand; get the full syntax from `pnpm directives:ref`.
 
 ### Universal Rules (all types)
 
@@ -224,578 +225,30 @@ These render widgets from structured data. Never build that data from prose. Use
 | `yoicard` | An author sign-off or contact block at the end |
 | `emoji` | Never added during enhancement (names depend on the emoji source) |
 
-## Directive Syntax Reference
+## Directive Reference
 
-### Syntax Rules
+The directive list lives in the site, not in this skill, so it always matches the theme version the site runs. Before adding or changing any directive, run this from the site root:
 
-- **Inline directives**: `:name[content]{attributes}` — text decoration embedded in paragraphs
-- **Leaf directives**: `::name{attributes}` — a single line with no body (`image`, `photo`)
-- **Block directives**: open with `:::name{attributes}`, close with `:::`, content in between. Body-less blocks (`banner`, `ghcard`, `video`, ...) still need the closing `:::`
-- **Attributes stay on the opening line** — a line break inside `{...}` breaks the directive. Quote values (`title="A b"`); flags take `"true"` / `"false"`
-- **Container nesting**: outer colon count **must be strictly greater** than inner. `::::` wraps `:::`, `:::::` wraps `::::`. Fenced code blocks inside don't count
-- **Two-level nesting** (`::::` wrapping `:::`) — most common, e.g. tabs containing callouts
-- **Three-level nesting** (`:::::` wrapping `::::` wrapping `:::`) — e.g. tabs inside grid
-- `tab:` / `folder:` lines are plain lines inside the container, not directives; keep each on its own line with a blank line before and after
-- Inside `grid`, `---` separates cells, so it cannot be used as a horizontal rule there
-
-### Structure & Layout
-
-#### grid — Multi-column layout
-```markdown
-:::grid{cols="3" gap="12"}
-**Title 1**
-Content 1
-
----
-
-**Title 2**
-Content 2
-:::
-```
-- `cols`: 2 | 3 | 4; omit for auto-wrapping columns (`minw` min column width, default `240px`)
-- `gap`: spacing in px
-- `bg`: card (default) | box | none
-- Use `---` with a blank line on both sides to separate cells (directly under a text line it turns that line into a heading)
-
-#### tabs — Tabbed content
-```markdown
-:::tabs
-tab: Tab 1
-
-Content 1
-
-tab: Tab 2{color=blue}
-
-Content 2
-:::
-```
-- Each `tab: Label` line starts a tab (blank lines around it)
-- `tab: Label{color=blue}` sets the tab color
-- Use `::::tabs` when a tab contains `:::` directives
-
-#### folding — Collapsible panel
-```markdown
-:::folding{title="View full config"}
-Long content
-:::
-```
-- `title`: collapsible button text
-- `open="true"`: expanded by default
-- `color`: custom color
-
-#### folders — Grouped collapsible sections
-```markdown
-:::folders
-folder: Chapter 1: Basics
-
-Content 1
-
-folder: Chapter 2: Components
-
-Content 2
-:::
-```
-- Each `folder: Title` line starts a section (blank lines around it)
-- `expand`: first (default) | all | none; `folder: Title {open}` or `{closed}` overrides one section
-
-#### timeline — Timeline
-```markdown
-:::timeline
-- 2024-01 | Project started | Tech stack decided
-- 2024-03 | v1 released | Features live
-:::
-```
-- Each line starts with `-`, separated by `|` into **date**, **title**, **description**
-- Description is optional
-
-#### banner — Banner
-```markdown
-:::banner{title="Mountains and Lakes" subtitle="Recording every journey" bg="https://..."}
-:::
-```
-- `title`: main heading; `subtitle`: subheading
-- `bg`: background image; `avatar`: avatar image (both accept `@img/`, relative paths or URLs)
-- `link`: jump link
-
-#### poetry — Poetry layout
-```markdown
-:::poetry{title="Quiet Night Thoughts" author="Li Bai" date="Tang"}
-Before my bed, the moonlight glows,
-It seems like frost upon the ground.
-:::
-```
-- `title`: title, `author`: author, `date`: era, `footer`: footer note
-
-#### paper — Letter paper
-```markdown
-:::paper{title="Letter" author="Author" date="Date"}
-Body content
-<!-- paragraph -->
-Next paragraph
-:::
-```
-- `<!-- paragraph -->`: normal paragraph (first-line indent)
-- `<!-- section Title -->`: chapter with centered title
-- `<!-- line right -->`: right-aligned line
-- `footer`: footer text
-
-#### reel — Scroll
-```markdown
-:::reel{title="Lantingji Xu" author="Wang Xizhi" date="Eastern Jin"}
-Vertical text content
-:::
-```
-- Text flows right-to-left vertically
-- `footer`: footer text
-
-### Content Display
-
-#### callout — Alert box
-```markdown
-:::callout{type="info"}
-Information alert content
-:::
-
-:::callout{type="tip" title="Pro tip"}
-Tip content
-:::
-```
-- `type`: info (blue, default) | tip (green) | warn (yellow) | danger (red)
-- `title`: custom title (defaults to the type name)
-
-#### note — Highlight block
-```markdown
-:::note{color="blue" title="About the theme"}
-Content
-:::
-```
-- `color`: blue | green | red | yellow | purple or any color value; omit for theme color
-- `title`: set title
-
-#### quot — Quote card
-```markdown
-:::quot{icon="lightbulb"}
-Quote content
-:::
-```
-- `icon`: Iconify name (`lucide:lightbulb`), bare name (gets `lucide:` prefix) or image URL; omit for a quote mark
-- Body is rendered as plain text
-
-#### title — Decorated heading
-```markdown
-:::title{style="quote"}
-Read ten thousand books, travel ten thousand miles
-:::
-```
-- `style`: quote (default) | badge
-- `el`: h2 (default) to h6; `centered="true"`; `color`; `shadow="true"`
-- `prefix` / `suffix` (suffix: quote style only): Iconify name, image or text; `prefix="false"` hides the prefix
-- Renders as a real heading
-
-#### blockquote — Paragraph quote
-```markdown
-:::blockquote
-Multi-paragraph quote content
-:::
-```
-- Quote mark icons appear at top-left and top-right corners
-
-#### code blocks — Window frame and shell prompt (built in, not a directive)
-````markdown
-```ts title="vite.config.ts" highlight="2"
-import { defineConfig } from 'vite'
-import tailwindcss from '@tailwindcss/vite'
+```bash
+pnpm directives:ref                # every directive, plus syntax rules, code blocks and math
+pnpm directives:ref callout tabs   # only the directives you need
 ```
 
-```bash title="Install"
-$ pnpm install
-Done in 3.2s
-```
-````
-- Every fenced block renders as a window titled with the language name; `title` overrides it (use the file name)
-- `linenos`: line numbers; `highlight="2,4-6"`: highlight lines (value must be quoted); `no-title`: plain block without window
-- Shell languages (bash, sh, shell, zsh, console, fish): lines starting with `$ ` are commands, shown with a prompt and the only lines copied; other lines are output. `~/app$ cmd` sets the prompt path; write `\$` for a literal `$` in output
-- `markdown` blocks and code inside `panel` stay plain
+For each directive it prints the syntax, a minimal example, the attribute table (values, defaults, required), the body format and the common mistakes. The output is in Chinese. Use only the directives and attributes it lists, with the values it allows.
 
-#### panel — Code panel
-````markdown
-:::panel
-```js title="File A" right="Note A"
-code...
+If the script is missing, the site runs an older theme. Tell the user to update the theme, and do not add directives from memory.
+
+## Check Before Finishing
+
+After writing or editing any Markdown under `src/content/`, run:
+
+```bash
+pnpm directives:check <file>
 ```
 
-```js title="File B" right="Note B"
-code...
-```
-:::
-````
-- `title` in code block → left label (defaults to language), `right` → right note
-- Also supports text mode: `<!-- label: left | right -->` before a segment; both modes can mix
+Each line is `file:line:column  level  message`. Fix every `错误` (error) and rerun until it reports 0 errors. A `提示` (warning) means some content will be ignored or dropped; fix it unless the author wrote it that way on purpose.
 
-#### copy — Copy block
-```markdown
-:::copy{label="Install dependency"}
-pnpm add remark-directive
-:::
-```
-- `label`: left label text
-- Content is collapsed into one line of plain text
-
-#### private — Private content
-```markdown
-:::private{password="vergil" hint="theme name"}
-Encrypted content
-:::
-```
-- `password` (required): decryption password
-- `hint`: password hint
-
-### Media
-
-#### image — Enhanced image
-```markdown
-::image{src="https://..." alt="Description" download="true" ratio="1/1" width="300px"}
-```
-- `src` (required): image URL, `@img/` or relative path
-- `alt`: description (shown as caption)
-- `width` / `height`: dimensions
-- `ratio`: fixed aspect ratio, e.g. `1/1`, `16/9`
-- `download`: true or custom link
-- `fancybox`: false disables click-to-zoom
-
-#### gallery — Gallery
-```markdown
-:::gallery{layout="grid"}
-![alt](url)
-![alt](url)
-:::
-```
-- `layout`: grid (default) | flow
-- `size`: xs | s | m (default) | l | xl | mix
-- `ratio`: square | portrait | origin
-
-#### photo — Photo frame with camera info
-```markdown
-::photo{src="https://..." brand="Fujifilm" focal="23mm" aperture="f/8" shutter="1/250s" iso="ISO 160"}
-```
-- `src` (required); `alt`
-- `type`: blur (default, blurred backdrop + info bar) | watermark (white bar: brand/model, logo, EXIF, time)
-- `brand` (known brands show a logo), `logo`, `focal`, `aperture`, `shutter`, `iso`; `model` and `datetime` show in watermark only
-- Fill camera fields only with values the article states
-- `fancybox="false"` disables click-to-zoom
-
-#### video — Video
-```markdown
-:::video{src="..." poster="..." ratio="16/9" pip="auto"}
-:::
-
-:::video{bilibili="BV1GJ411x7h7"}
-:::
-
-:::video{youtube="jfKfPfyJRdk"}
-:::
-```
-- `src`: video URL, `poster`: cover image
-- `ratio`: 16/9 (default) or any `w/h`, e.g. 4/3 | 1/1 | 9/16
-- `pip`: auto (default) | manual | off (local video only)
-- `align`: left (default) | center | right
-- `width`: max width
-- `autoplay`: true
-
-#### audio — Audio
-```markdown
-:::audio{src="..." title="Song" artist="Artist" cover="..."}
-:::
-
-:::audio{netease="25706282" title="Sunny Day" artist="Artist" mode="card"}
-:::
-
-:::audio{voice="..." duration="15"}
-:::
-```
-- Standard mode: `src`, `title`, `artist`, `cover`
-- NetEase Cloud: `netease` as song ID; `mode`: mini (default) | card
-- Voice: `voice` as file path, `duration` in seconds
-- `align`: left (default) | center | right
-- `width`: custom width
-
-### Cards & Links
-
-#### ghcard — GitHub card
-```markdown
-:::ghcard{type="repo" repo="owner/repo"}
-:::
-
-:::ghcard{type="user" user="octocat" bio="Bio"}
-:::
-```
-- `type`: repo (default) | user
-- `repo`: owner/repo format
-- `user`: GitHub username
-- `bio`: custom bio (user only)
-- `avatar`: false hides avatar (user only)
-
-#### yoicard — Business card
-```markdown
-:::yoicard{name="Your Name" role="Writer · Photographer"}
-
-One-line bio
-
-<!-- contact -->
-
-**example.com**
-hello@example.com
-:::
-```
-- `name` (required); `role`: one-line title
-- `<!-- contact -->` splits the bio (above) from the contact block (below)
-- Background: `bg` (color) | `bg-image` (+ `bg-mode`: full | left | right) | `bg-gradient` (`135deg, #fef3c7, #fed7aa`) | `bg-pattern` (diagonal | dots | grid | grain)
-- Also `accent`, `icon`, `logo`, `qr` (QR code content), `text` (auto | light | dark)
-
-#### sites — Site link cards
-```markdown
-:::sites{group="friends"}
-:::
-```
-- `group` (required): group name defined in `src/data/config/links.ts`
-
-#### posters — Poster wall
-```markdown
-:::posters{group="movies" ratio="square"}
-:::
-```
-- `group` (required): group name defined in config (shared with `sites`)
-- `ratio`: portrait (default, 2:3) | square
-- `cols`: fixed column count 2–8
-
-#### hashtag — Tag link
-```markdown
-:hashtag[Astro]{href="/tags/astro"}
-:hashtag[CSS]{href="/tags/css" color="blue"}
-```
-- Defaults to cycling through 7 colors automatically
-- `color`: manually specify color
-
-#### button — Button
-```markdown
-:button[View docs]{href="/" color="accent" icon="lucide:search"}
-```
-- `href`: jump link, `color`: color
-- `icon`: Iconify icon name or image URL
-- `size="xs"`: small size
-
-### Text & Interaction (inline)
-
-#### mark — Highlight
-```markdown
-:mark[key content]
-:mark[special attention]{color="red"}
-```
-- `color`: yellow (default) | green | red | blue | purple | accent or any color value
-
-#### u — Underline
-```markdown
-:u[underlined]{color="blue"}
-```
-
-#### emp — Emphasis mark
-```markdown
-:emp[needs special emphasis]
-```
-- Traditional Chinese emphasis dots; `color` optional (defaults to theme color)
-
-#### wavy — Wavy underline
-```markdown
-:wavy[spelling error hint]{color="red"}
-```
-
-#### del — Strikethrough
-```markdown
-:del[¥199]
-```
-
-#### sup / sub — Superscript/Subscript
-```markdown
-H:sub[2]O
-E = mc:sup[2]{color="red"}
-```
-
-#### kbd — Keyboard key
-```markdown
-:kbd[Ctrl] + :kbd[C]
-```
-
-#### blur — Blur display
-```markdown
-:blur[Click here to reveal hidden content]
-```
-- Click to remove blur effect
-
-#### psw — Password mask
-```markdown
-:psw[MySecretDB_2024]
-```
-- Click to reveal plaintext
-
-#### checkbox — Checkbox
-```markdown
-:checkbox[default unchecked]
-:checkbox[checked]{checked="true" color="green" symbol="plus"}
-```
-- `checked="true"`: checked state
-- `symbol`: plus | minus | times
-- `inline="true"`: inline usage (block by default)
-
-#### radio — Radio button
-```markdown
-:radio[Option A]{checked="true" color="orange"}
-```
-- `checked="true"`: checked state
-- `inline="true"`: inline usage
-
-#### step-brackets — Step marker
-```markdown
-:step-brackets[01]{title="Clone repository"}
-```
-- `title`: step title
-
-#### emoji — Emoji image
-```markdown
-It finally works :emoji[1f389]{source="twemoji"}
-```
-- Bracket content is the emoji name in the chosen source
-- `source`: default (= qq) | qq | aru | tieba | blobcat | twemoji (Unicode code point, e.g. `1f600`)
-- `height`: default `1.75em`
-
-#### ann — Handwritten annotation
-```markdown
-:ann[Empty hills]{note="quiet after the rain" direction="top-right" color="green"} after fresh rain
-```
-- Draws a hand-drawn arrow from the marked words to a margin note
-- `note`: note text; omit to only tint the words
-- `direction`: bottom (default) | top | top-right | right | bottom-right | bottom-left | left | top-left
-- `color`: amber | blue | green | red | purple | rainbow (default warm gray)
-- Alternate directions on adjacent lines so notes don't overlap
-
-### Charts
-
-#### mermaid — Diagrams
-```markdown
-:::mermaid
-flowchart LR
-    A[Request] --> B{Cached?}
-    B -->|yes| C[Return cache]
-    B -->|no| D[Query DB]
-:::
-```
-- Any Mermaid type: flowchart, sequenceDiagram, gantt, classDiagram, stateDiagram, erDiagram, ...
-- Raw text passes through Markdown first; put the diagram in a fenced code block inside the directive when labels contain quotes, `*`, `_` or `[]()`
-
-#### echart — Data charts
-```markdown
-:::echart{height="300px"}
-{
-  "xAxis": { "type": "category", "data": ["Jan", "Feb", "Mar"] },
-  "yAxis": { "type": "value" },
-  "series": [{ "type": "bar", "data": [120, 200, 150] }]
-}
-:::
-```
-- Body must be valid JSON (an ECharts `setOption` object, no functions); a fenced `json` block inside also works
-- `height`: default `400px`
-
-### Time Planning
-
-#### deadline — Countdown
-```markdown
-:::deadline{date="2026-12-31T23:59:59" title="Registration closes" description="Time left"}
-:::
-```
-- `date` (required): `YYYY-MM-DD` or `YYYY-MM-DDTHH:MM:SS`
-- `title`, `description`, `expiredText` (shown after the date), `showSeconds="false"`
-
-#### calendar — Month calendar
-```markdown
-:::calendar{month="2026-05"}
-| date | type | content | color | link |
-| ---- | ---- | ------- | ----- | ---- |
-| 05-01 | Holiday | Day trip | red | |
-| 05-12 | Work | Project review | | |
-:::
-```
-- `month`: `YYYY-MM` shown first (default current month)
-- Header names must be English; every column is optional: `date` (`MM-DD`, `YYYY-MM-DD` or day `D`), `type` (same type, same color), `content`, `color` (blue | green | red | purple | yellow | cyan | orange | pink), `link`
-- Lunar dates, solar terms and Chinese public holidays are added automatically
-
-#### okr — Objectives and key results
-```markdown
-:::okr{title="Q2 Goals" period="2026 Q2"}
-## O1: Grow the newsletter
-
-| Key Result | Target | Current | Status |
-|------------|--------|---------|--------|
-| Subscribers | 1000 | 640 | ontrack |
-| Issues sent | 12 | 5 | behind |
-:::
-```
-- `## Heading` = objective (a paragraph under it is its description); table rows = key results
-- Columns: `Key Result`, `Target`, `Current` (progress = Current / Target), `Description`, `Status`, `Link`
-- `Status`: ontrack | at-risk | behind | completed (or 正常 / 风险 / 滞后 / 完成)
-
-#### plan — Multi-view task board
-```markdown
-:::plan{title="Release plan" views="board,table,timeline" dateCol="Due" statusCol="Status" titleCol="Task"}
-| Task:text | Status:status | Priority:priority | Due:date | Done:progress |
-|-----------|---------------|-------------------|----------|---------------|
-| Spec | done | P0 | 2026-01-10 | 100% |
-| Build | doing | P0 | 2026-02-01 | 60% |
-:::
-```
-- Header cells are `Name:type`: text (default) | status (todo/doing/done) | priority (P0/P1/P2) | date | progress | number | checkbox (true/false) | select | link
-- `views`: board | list | table | timeline | milestone | progress | ebbinghaus (comma-separated); `default`: initial view
-- Column mapping: `dateCol`, `startDate` / `endDate` (range bars), `progressCol`, `statusCol`, `titleCol`, `ownerCol`, `priorityCol`, `descCol`; board: `groupBy`, `groupOrder`; table: `filters`; ebbinghaus: `steps`
-- timeline needs `dateCol` or `startDate`/`endDate`; milestone and ebbinghaus need `dateCol`; progress needs `progressCol`
-
-### Visual Narrative
-
-#### story — Storyboard
-```markdown
-:::story
-| shot | scale | duration | image | desc | dialogue |
-|------|-------|----------|-------|------|----------|
-| 1 | Close-up | 3s | https://... | She checks her phone | "What now?" |
-:::
-```
-- `shot` column is required; `image` (URL or `![](...)`), `desc`, `dialogue`, `note` have fixed roles
-- Any other column becomes a colored tag
-
-#### mind — Mind map
-```markdown
-:::mind
-- Theme design
-  - Visual system
-    - Colors
-    - Typography
-  - Content directives
-:::
-```
-- A nested Markdown list becomes a collapsible, zoomable mind map
-
-### Math (frontmatter, not a directive)
-
-````markdown
----
-katex: true
----
-
-Inline $E = mc^2$ and a block:
-
-$$
-\int_0^1 x^2 \, dx = \frac{1}{3}
-$$
-````
-- Formulas render only when frontmatter sets `katex: true` (light, fast) or `mathjax: true` (broader LaTeX/AMS support; wins if both are set); otherwise `$...$` stays raw text
-- Inline `$...$` needs a space or punctuation on both sides; `$$` blocks sit on their own lines
+With the vergil plugin installed in Claude Code, a hook runs this check after every edit under `src/content/` and hands the errors back to you. Fix them before you report the work as done.
 
 ## Hard Constraints
 
@@ -817,7 +270,7 @@ Strictly enforce these rules:
 2. `enhance` mode: preserve the original YAML frontmatter (only add `katex: true` when the math rule applies), and add a comment at the top:
    ```yaml
    ---
-   # vergil-writing-skills: mode=enhance type=<type> style=<style> directive-count=<count>
+   # vergil-writing: mode=enhance type=<type> style=<style> directive-count=<count>
    title: Original title
    # ... other original frontmatter
    ---
@@ -825,7 +278,7 @@ Strictly enforce these rules:
 3. `write` mode: frontmatter valid for the theme's blog collection. `draft: true` until the author has reviewed it:
    ```yaml
    ---
-   # vergil-writing-skills: mode=write type=<type> style=<style> directive-count=<count>
+   # vergil-writing: mode=write type=<type> style=<style> directive-count=<count>
    title: 标题
    excerpt: 一句话摘要，列表页会显示
    publishDate: 2026-04-23
@@ -893,7 +346,7 @@ After building, deploy the `dist` directory to any static hosting service.
 
 ````markdown
 ---
-# vergil-writing-skills: mode=enhance type=tech-blog style=default directive-count=4
+# vergil-writing: mode=enhance type=tech-blog style=default directive-count=4
 title: Building a Blog with Astro
 publishDate: 2024-01-15
 ---

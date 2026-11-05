@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "vergil-astro",
+  "description": "Agent plugins for the Vergil Astro theme",
+  "owner": {
+    "name": "vergil-astro"
+  },
+  "plugins": [
+    {
+      "name": "vergil",
+      "source": "./",
+      "description": "给 Vergil 站点写文章、排版：按 kami 的写作规则，用主题的内容指令；改完 src/content 下的文章自动检查指令写法",
+      "category": "productivity"
+    }
+  ]
+}

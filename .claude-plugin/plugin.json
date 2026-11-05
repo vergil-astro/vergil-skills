@@ -1,0 +1,13 @@
+{
+  "name": "vergil",
+  "version": "2.0.0",
+  "description": "Write and typeset posts for the Vergil Astro theme with its content directives, and check directive syntax after every edit under src/content/",
+  "author": {
+    "name": "vergil-astro",
+    "url": "https://github.com/vergil-astro"
+  },
+  "homepage": "https://github.com/vergil-astro/vergil-skills",
+  "repository": "https://github.com/vergil-astro/vergil-skills",
+  "license": "MIT",
+  "keywords": ["vergil", "astro", "markdown", "directive", "blog", "writing", "typesetting"]
+}
