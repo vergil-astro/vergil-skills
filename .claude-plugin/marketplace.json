@@ -9,7 +9,7 @@
     {
       "name": "vergil",
       "source": "./",
-      "description": "给 Vergil 站点写文章、排版：按 kami 的写作规则，用主题的内容指令；改完 src/content 下的文章自动检查指令写法",
+      "description": "Write and typeset Vergil posts with kami's writing rules and the theme's content directives; checks directive syntax after every edit under src/content/",
       "category": "productivity"
     }
   ]
